@@ -16,13 +16,9 @@ export class DnsStack extends cdk.Stack {
 
     this.domainName = DOMAIN_NAME;
 
-    this.hostedZone = route53.HostedZone.fromLookup(
-      this,
-      'HostedZone',
-      {
-        domainName: HOSTED_ZONE_NAME,
-      }
-    );
+    this.hostedZone = new route53.HostedZone(this, 'HostedZone', {
+        zoneName: HOSTED_ZONE_NAME,
+    });
 
     this.certificate = new acm.Certificate(this, 'Certificate', {
       domainName: DOMAIN_NAME,
