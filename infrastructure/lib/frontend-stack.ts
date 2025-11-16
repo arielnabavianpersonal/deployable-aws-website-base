@@ -3,10 +3,19 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
+import * as acm from 'aws-cdk-lib/aws-certificatemanager';
+import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as targets from 'aws-cdk-lib/aws-route53-targets';
 import { Construct } from 'constructs';
 
+export interface FrontendStackProps extends cdk.StackProps {
+  certificate: acm.ICertificate;
+  domainName: string;
+  hostedZone: route53.IHostedZone;
+}
+
 export class FrontendStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: FrontendStackProps) {
     super(scope, id, props);
 
     const frontendBucket = new s3.Bucket(this, 'FrontendBucket', {
@@ -28,6 +37,8 @@ export class FrontendStack extends cdk.Stack {
           responsePagePath: '/index.html',
         },
       ],
+      domainNames: [props.domainName],
+      certificate: props.certificate,
     });
 
     new s3deploy.BucketDeployment(this, 'DeployFrontend', {
@@ -35,6 +46,14 @@ export class FrontendStack extends cdk.Stack {
       destinationBucket: frontendBucket,
       distribution,
       distributionPaths: ['/*'],
+    });
+
+    new route53.ARecord(this, 'AliasRecord', {
+      zone: props.hostedZone,
+      recordName: props.domainName,
+      target: route53.RecordTarget.fromAlias(
+        new targets.CloudFrontTarget(distribution)
+      ),
     });
   }
 }
