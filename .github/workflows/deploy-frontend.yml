@@ -34,7 +34,7 @@ jobs:
       - name: Install Frontend Dependencies
         run: |
           cd frontend
-          npm ci
+          npm install
       
       - name: Build Frontend
         run: |
@@ -44,7 +44,7 @@ jobs:
       - name: Install CDK Dependencies
         run: |
           cd infrastructure
-          npm ci
+          npm install
       
       - name: Deploy Frontend (Hotswap)
         run: |
