@@ -49,4 +49,4 @@ jobs:
       - name: Deploy Frontend (Hotswap)
         run: |
           cd infrastructure
-          npx cdk deploy FrontendStack --hotswap --require-approval never
+          npx cdk deploy --all --hotswap --require-approval never
